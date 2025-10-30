@@ -1,0 +1,94 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Node/Yarn/Pnpm/Npm
+.pnp
+.pnp.js
+.npm
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.yarn-integrity
+
+# Testing
+coverage/
+.nyc_output
+*.lcov
+
+# Build & Output
+build/
+dist/
+out/
+.next
+.nuxt
+.cache
+.parcel-cache
+.svelte-kit/
+.vuepress/dist
+.temp
+.docusaurus
+.serverless/
+.web_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc & Cache
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+node-repl-history
+*.tgz
+.eslintcache
+.stylelintcache
+lock-wscript
+build/Release
+*.tsbuildinfo
+.pnp.*
+.pnp.js
+.yarn-integrity
+.cache/
+.fusebox/
+.dynamodb/
+.firebase/
+.tern-port
+.vscode-test
