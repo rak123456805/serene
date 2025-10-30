@@ -7,14 +7,15 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const fetch = require('node-fetch'); // Works in all Node versions
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args)); 
+// Universal fetch for Node
 
 // ====== CONFIG ======
 const app = express();
-const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/serene_auth';
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
-const PYTHON_API_URL = process.env.PYTHON_API_URL || 'http://127.0.0.1:8001/chat';
+const PORT = process.env.PORT || 5000;
+const MONGODB_URI = process.env.MONGODB_URI;
+const JWT_SECRET = process.env.JWT_SECRET;
+const PYTHON_API_URL = process.env.PYTHON_API_URL;
 
 // ====== MIDDLEWARE ======
 app.use(cors());
@@ -45,6 +46,11 @@ function authenticateToken(req, res, next) {
 
 // ====== ROUTES ======
 
+// ✅ Root check (important for Render)
+app.get("/", (req, res) => {
+  res.send("✅ Serene Node Backend is live");
+});
+
 // Signup
 app.post('/api/auth/signup', async (req, res) => {
   const { name, email, password } = req.body;
@@ -53,13 +59,11 @@ app.post('/api/auth/signup', async (req, res) => {
   }
 
   try {
-    // Check if user already exists by email
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ success: false, message: 'User already exists' });
     }
 
-    // Create new user (password hashing handled by pre-save hook)
     const newUser = new User({ username: name, email, password });
     await newUser.save();
 
@@ -69,7 +73,6 @@ app.post('/api/auth/signup', async (req, res) => {
     if (err.code === 11000) {
       res.status(409).json({ success: false, message: 'User already exists (duplicate key)' });
     } else if (err.name === 'ValidationError') {
-      // Handle Mongoose validation errors
       const errors = {};
       for (let field in err.errors) {
         errors[field] = err.errors[field].message;
@@ -99,7 +102,6 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Update last login
     user.lastLogin = new Date();
     await user.save();
 
@@ -116,7 +118,7 @@ app.get('/api/profile', authenticateToken, (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
-// Chat endpoint
+// Chat
 app.post('/api/chat', authenticateToken, async (req, res) => {
   const { message, sessionId } = req.body;
 
@@ -131,14 +133,10 @@ app.post('/api/chat', authenticateToken, async (req, res) => {
       body: JSON.stringify({ prompt: message }),
     });
 
-    if (aiResponse.ok) {
-      const aiData = await aiResponse.json();
-      if (aiData && aiData.response) botReply = aiData.response;
-    } else {
-      console.error('Python API Error:', aiResponse.status, aiResponse.statusText);
-    }
+    const aiData = await aiResponse.json();
+    if (aiData && aiData.response) botReply = aiData.response;
   } catch (err) {
-    console.error('Failed to connect to Python API:', err.message);
+    console.error('Python API Error:', err.message);
   }
 
   res.json({
